@@ -6,10 +6,11 @@ import java.util.Locale;
 public class ReflectionUtil
 {
     
-    public static Method getMethod(Class<?> clazz, String fieldName)
+    public static <T> Method getMethod(T t, String fieldName)
     {
-        String getMethodName = null;
         Method method = null;
+        String getMethodName = null;
+        Class<?> clazz = t.getClass();
         try
         {
             if (fieldName.startsWith("is"))
@@ -30,11 +31,6 @@ public class ReflectionUtil
             e.printStackTrace();
         }
         return method;
-    }
-    
-    public static void setMethod()
-    {
-        
     }
     
 }

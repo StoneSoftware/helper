@@ -44,7 +44,7 @@ public class CollectionHelper
      * @param key ¶ÔÏó×Ö¶Î
      * @return Map
      */
-    public static <T> Map<String, T> map(Collection<T> colleciton, String key)
+    public static <T> Map<String, T> toMap(Collection<T> colleciton, String key)
     {
         Class<?> clazz = null;
         Method method = null;
@@ -58,10 +58,11 @@ public class CollectionHelper
                     if (clazz == null)
                     {
                         clazz = t.getClass();
-                        method = ReflectionUtil.getMethod(clazz, key);
+                        method = ReflectionUtil.getMethod(t, key);
                     }
                     Object obj = method.invoke(t);
-                    if (obj instanceof String)
+                    if (obj instanceof String || obj instanceof Integer
+                        || obj instanceof Float || obj instanceof Double)
                     {
                         map.put(obj.toString(), t);
                     }

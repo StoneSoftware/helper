@@ -2,35 +2,49 @@ package org.stone.software.helper.reflection;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Optional;
+
+import org.stone.software.helper.string.StringHelper;
 
 public class ReflectionUtil
 {
     
-    public static <T> Method getMethod(T t, String fieldName)
+    public static <T> Optional<Method> obtainGetMethod(T t, String fieldName)
+    {
+        if (t == null)
+        {
+            return Optional.empty();
+        }
+        return obtainGetMethod(t.getClass(), fieldName);
+    }
+    
+    public static <T> Optional<Method> obtainGetMethod(Class<?> clazz,
+        String fieldName)
     {
         Method method = null;
         String getMethodName = null;
-        Class<?> clazz = t.getClass();
-        try
+        if (fieldName.startsWith("is"))
         {
-            if (fieldName.startsWith("is"))
+            getMethodName = fieldName;
+        }
+        else
+        {
+            String firstStr = fieldName.substring(0, 1);
+            getMethodName =
+                "get" + firstStr.toUpperCase(Locale.CHINA)
+                    + fieldName.replaceFirst(firstStr, "");
+            if (clazz != null && StringHelper.isNotEmpty(getMethodName))
             {
-                getMethodName = fieldName;
-            }
-            else
-            {
-                String firstStr = fieldName.substring(0, 1);
-                getMethodName =
-                    "get" + firstStr.toUpperCase(Locale.CHINA)
-                        + fieldName.replaceFirst(firstStr, "");
-                method = clazz.getMethod(getMethodName);
+                try
+                {
+                    method = clazz.getMethod(getMethodName);
+                }
+                catch (Exception e1)
+                {
+                    e1.printStackTrace();
+                }
             }
         }
-        catch (NoSuchMethodException | SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        return method;
+        return Optional.ofNullable(method);
     }
-    
 }

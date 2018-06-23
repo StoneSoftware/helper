@@ -1,10 +1,10 @@
 package org.stone.software.helper.collection;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.stone.software.helper.reflection.ReflectionUtil;
 
@@ -44,35 +44,33 @@ public class CollectionHelper
      * @param key ¶ÔÏó×Ö¶Î
      * @return Map
      */
-    public static <T> Map<String, T> toMap(Collection<T> colleciton, String key)
+    public static <T> Map<String, T> toMap(Collection<T> colleciton,
+        String field)
     {
-        Class<?> clazz = null;
-        Method method = null;
         Map<String, T> map = new HashMap<String, T>();
-        try
+        if (isNotEmpty(colleciton))
         {
-            if (isNotEmpty(colleciton))
-            {
-                for (T t : colleciton)
-                {
-                    if (clazz == null)
+            colleciton.stream().forEach(ele -> {
+                Optional<Method> method =
+                    ReflectionUtil.obtainGetMethod(ele, field);
+                method.ifPresent(e2 -> {
+                    Object obj = null;
+                    Method m = method.get();
+                    try
                     {
-                        clazz = t.getClass();
-                        method = ReflectionUtil.getMethod(t, key);
+                        obj = m.invoke(ele);
                     }
-                    Object obj = method.invoke(t);
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                     if (obj instanceof String || obj instanceof Integer
                         || obj instanceof Float || obj instanceof Double)
                     {
-                        map.put(obj.toString(), t);
+                        map.put(obj.toString(), ele);
                     }
-                }
-            }
-        }
-        catch (IllegalAccessException | IllegalArgumentException
-            | InvocationTargetException e)
-        {
-            e.printStackTrace();
+                });
+            });
         }
         return map;
     }
